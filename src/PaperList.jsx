@@ -1,37 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { TextField, Button, Typography, Box, Card, CardContent, CardActions, Pagination, Stack } from '@mui/material'
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 20
 
 function PaperList () {
     const [papersData, setPapersData] = useState([])
     const [searchTerm, setSearchTerm] = useState('')
     const [filteredPapers, setFilteredPapers] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
-    const getPageNumbers = () => {
-        const pages = []
-        const startPage = Math.max(currentPage - 5, 1)
-        const endPage = Math.min(currentPage + 5, totalPages)
 
-        // 添加首页按钮
-        if (startPage > 1) {
-            pages.push({ type: 'first', display: '首页', number: 1 })
-            if (startPage > 2) pages.push({ type: 'ellipsis', display: '...' })
-        }
-
-        // 添加页码
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push({ type: 'number', display: i, number: i })
-        }
-
-        // 添加末页按钮
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) pages.push({ type: 'ellipsis', display: '...' })
-            pages.push({ type: 'last', display: '末页', number: totalPages })
-        }
-
-        return pages
-    }
     // Load papers data from public directory
     useEffect(() => {
         const fetchData = async () => {
@@ -63,161 +41,152 @@ function PaperList () {
     // Pagination handling
     const totalPages = Math.ceil(filteredPapers.length / PAGE_SIZE)
 
-
-
     const paginatedPapers = filteredPapers.slice(
         (currentPage - 1) * PAGE_SIZE,
         currentPage * PAGE_SIZE
     )
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.heading}>论文列表</h1>
-            <input
-                type="text"
-                placeholder="搜索论文..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={styles.searchBox}
-            />
-            <div style={styles.paperList}>
+        <Box sx={{ maxWidth: '100vw', margin: '0 auto', padding: '40px 20px', backgroundColor: '#f4f8ff', minHeight: '100vh', fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+            <Typography variant="h3" align="center" sx={{ color: '#2c5282', marginBottom: '40px', fontWeight: 600 }}>
+                论文列表
+            </Typography>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+                <TextField
+                    label="搜索论文..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    variant="outlined"
+                    sx={{
+                        maxWidth: '560px', // 设置最大宽度
+                        width: '100%', // 保证在小屏幕上占据100%宽度
+                    }}
+                />
+            </Box>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '28px', width: '80%', margin: '0 auto' }}>
                 {paginatedPapers.map((paper) => (
-                    <div key={paper.id} style={styles.paperCard}>
-                        <h3 style={styles.title}>{paper.title}</h3>
-                        {paper.author && <p style={styles.author}>{paper.author}</p>}
-                        <Link to={`/paper/${paper.id}`} style={styles.link}>
-                            查看详情
-                        </Link>
-                    </div>
+                    // 修改 Card 的 sx 属性
+                    <Card
+                        key={paper.id}
+                        sx={{
+                            display: 'flex',
+                            backdropFilter: 'blur(12px) saturate(160%)',
+                            WebkitBackdropFilter: 'blur(12px) saturate(160%)', // Safari兼容
+                            justifyContent: 'space-between',
+                            borderRadius: '12px',
+                            padding: '32px',
+                            background: `
+      linear-gradient(145deg, 
+        rgba(255,255,255,0.95) 0%,
+        rgba(245,249,255,0.95) 100%)
+    `,
+                            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.07)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                            '&:hover': {
+                                transform: 'translateY(-8px) scale(1.02)',
+                                boxShadow: `
+        0 24px 48px rgba(66, 153, 225, 0.2),
+        inset 0 0 0 1px rgba(255,255,255,0.3)
+      `,
+                                '&::after': {  // 光晕特效
+                                    opacity: 1,
+                                    transform: 'scale(1.3)'
+                                }
+                            },
+                            '&::after': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                background: `
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255,255,255,0.4) 0%,
+          transparent 80%
+        )
+      `,
+                                opacity: 0,
+                                transition: 'all 0.6s ease',
+                                zIndex: 0
+                            }
+                        }}
+                    >
+                        <CardContent sx={{
+                            position: 'relative',
+                            zIndex: 1,
+                            '&::before': {  // 流动光带
+                                content: '""',
+                                position: 'absolute',
+                                top: '-50%',
+                                left: '-50%',
+                                width: '70%',
+                                height: '200%',
+                                background: `
+      linear-gradient(
+        45deg,
+        transparent 35%,
+        rgba(255,255,255,0.1) 50%,
+        transparent 65%
+      )
+    `,
+                                animation: 'flowLight 6s linear infinite',
+                                opacity: 0,
+                                transition: 'opacity 0.3s'
+                            },
+                            '&:hover::before': {
+                                opacity: 0.6
+                            },
+                            '@keyframes flowLight': {
+                                '0%': { transform: 'translate(-30%, -30%)' },
+                                '100%': { transform: 'translate(30%, 30%)' }
+                            },
+                            maxWidth: 'calc(100% - 120px)',
+                        }}>
+                            <Typography variant="h5" sx={{ color: '#2b6cb0', fontWeight: 600 }}>{paper.title}</Typography>
+                            {paper.author && <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#4a5568' }}>{paper.author}</Typography>}
+                        </CardContent>
+                        <CardActions sx={{ position: 'absolute', top: '50%', right: '20px', transform: 'translateY(-50%)', zIndex: 50 }}>
+                            <Link to={`/paper/${paper.id}`} style={{ textDecoration: 'none' }}>
+                                <Button variant="contained" sx={{ background: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)', color: 'white', '&:hover': { backgroundColor: '#08306b' }, padding: '10px 20px', fontSize: '1rem', zIndex: 1000 }}>
+                                    查看详情
+                                </Button>
+                            </Link>
+                        </CardActions>
+                    </Card>
                 ))}
-            </div>
-            <div style={styles.pagination}>
-                {getPageNumbers().map((page, index) => {
-                    const isActive = page.number === currentPage
-                    const isNumber = page.type === 'number'
-                    const isEdge = page.type === 'first' || page.type === 'last'
+            </Box>
 
-                    return (
-                        <button
-                            key={index}
-                            onClick={() => !isActive && setCurrentPage(page.number)}
-                            style={{
-                                ...styles.baseButton,
-                                ...(isEdge && styles.edgeButton),
-                                ...(isNumber && styles.numberButton),
-                                ...(isActive && styles.activeButton)
-                            }}
-                            disabled={page.type === 'ellipsis'}
-                        >
-                            {page.display}
-                        </button>
-                    )
-                })}
-            </div>
-        </div>
+            <Stack spacing={2} sx={{ marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(event, value) => setCurrentPage(value)}
+                    color="primary"
+                    sx={{
+                        '& .MuiPaginationItem-root': {
+                            '&.Mui-selected': {
+                                boxShadow: '0 2px 6px rgba(66, 153, 225, 0.3)'
+                            },
+                            '&.Mui-focusVisible': {  // 去除焦点环
+                                boxShadow: 'none',
+                                outline: 'none'
+                            },
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                transform: 'scale(1.1)'
+                            }
+                        }
+                    }}
+                />
+            </Stack>
+        </Box >
     )
-}
-
-const styles = {
-    container: {
-        maxWidth:false,
-        padding: '20px',
-        width:'100vw',
-        backgroundColor: '#f4f8ff',
-        minHeight: '100vh',
-        fontFamily: 'Arial, sans-serif',
-    },
-    heading: {
-        fontSize: '2.5rem',
-        color: '#0a3d8d',
-        marginBottom: '20px',
-        alignItems:'center',
-        justifyContent:'center'
-    },
-    searchBox: {
-        padding: '10px',
-        fontSize: '1rem',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-        marginBottom: '20px',
-        width: '300px',
-        display: 'block',
-    },
-    paperList: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '20px',
-        margin:'0 auto'
-    },
-    paperCard: {
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '15px',
-        width: '250px',
-        backgroundColor: '#fff',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    },
-    title: {
-        fontSize: '1.25rem',
-        fontWeight: 'bold',
-        color: '#0a3d8d',
-    },
-    author: {
-        fontSize: '0.875rem',
-        color: '#555',
-        marginTop: '10px',
-    },
-    link: {
-        marginTop: '10px',
-        display: 'inline-block',
-        color: '#007bff',
-        textDecoration: 'none',
-    },
-    pagination: {
-        marginTop: '20px',
-        textAlign: 'center',
-        display: 'flex',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        gap: '8px',
-    },
-    baseButton: {
-        padding: '8px 16px',
-        border: '1px solid #ddd',
-        backgroundColor: '#fff',
-        color: '#333', // 新增文字颜色定义
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        height: '36px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    activeButton: {
-        backgroundColor: '#0a3d8d',
-        color: '#fff',
-        borderColor: '#0a3d8d',
-        transform: 'translateY(-2px)',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-    },
-
-    // 新增悬停效果
-    edgeButton: {
-        borderRadius: '4px',
-        minWidth: '80px',
-        '&:hover': {
-            backgroundColor: '#f0f0f0'
-        }
-    },
-    numberButton: {
-        borderRadius: '50%',
-        width: '36px',
-        padding: 0,
-        minWidth: 'auto',
-        '&:hover': {
-            backgroundColor: '#f0f0f0'
-        }
-    },
 }
 
 export default PaperList

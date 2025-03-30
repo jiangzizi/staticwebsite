@@ -65,7 +65,7 @@ function PaperDetail () {
 
   const {
     title, author, abstract, question, method,
-    code_link, benchmark, dataset, outcome, file_link
+    code_link, benchmark, dataset, outcome, file_link, innovation
   } = paper
 
   const pdfPath = file_link ? `/data/${title}.pdf` : null
@@ -260,6 +260,12 @@ function PaperDetail () {
               <Box>
                 <Typography variant="subtitle2" sx={infoLabelStyle}>📊 实验结果</Typography>
                 <Typography variant="body1">{outcome}</Typography>
+              </Box>
+            )}
+            {innovation && (
+              <Box>
+                <Typography variant="subtitle2" sx={infoLabelStyle}>🚀 创新亮点 </Typography>
+                <Typography variant="body1">{innovation} </Typography>
               </Box>
             )}
           </Box>
